@@ -23,7 +23,6 @@ app.get("/latestVersion", (req, res) => {
     latestVersion = require('./public/latestVersion.json');
     res.status(200).send(String(latestVersion.latestVersion));
 });
-app.listen(3000);
 
 app.post("/newVersion", upload.single('file-to-upload'), (req, res) => {
     let body = req.body;
@@ -52,3 +51,9 @@ app.get('/latestFileVersion', (req, res) => {
     latestVersion = require('./public/latestVersion.json');
     res.sendFile(__dirname + '/public/' + latestVersion.latestVersion + '.bin');
 });
+
+app.get('/', (req, res) => {
+    res.status(200).send("OTA NODE");
+});
+
+app.listen(3000);
