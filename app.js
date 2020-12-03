@@ -3,6 +3,12 @@ var path = require('path');
 var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
 var multer = require('multer');
+var mongoose = require('mongoose');
+var latestVersionModel = require('./models/latestVersion_model');
+
+mongoose.connect("mongodb+srv://OTAVersion:Prueba123456789@cluster0.v9ufb.mongodb.net/OTAVersion?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {console.log("Conectado")})
+    .catch((err) => { console.log(err); });
 
 const upload = multer({
     dest: 'public/' // this saves your file into a directory called "uploads"
@@ -19,28 +25,25 @@ app.use(bodyParser.json({}));
 
 app.use(serveStatic(path.join(__dirname, 'public')));
 
-app.get("/latestVersion", (req, res) => {
-    latestVersion = require('./public/latestVersion.json');
-    res.status(200).send(String(latestVersion.latestVersion));
+app.get("/latestVersion", async (req, res) => {
+    latestVersion = await latestVersionModel.getLatestVersion();
+    res.status(200).send(String(latestVersion[0].latestVersion));
 });
 
-app.post("/newVersion", upload.single('file-to-upload'), (req, res) => {
+app.post("/newVersion", upload.single('file-to-upload'), async (req, res) => {
     let body = req.body;
 
     let numeroVersion = body.newVersion;
+    let latestVersion;
 
-    latestVersion = require('./public/latestVersion.json');
-    if (latestVersion.latestVersion >= body.newVersion) {
+    latestVersion = await latestVersionModel.getLatestVersion();
+    if (latestVersion[0].latestVersion >= body.newVersion) {
         return res.status(403);
     }
+    if (latestVersion[0].latestVersion)
+        fs.unlinkSync('./public/' + latestVersion[0].latestVersion + '.bin');
 
-    fs.unlinkSync('./public/' + latestVersion.latestVersion + '.bin');
-
-    let newData = new Object({ "latestVersion": body.newVersion });
-
-    let data = JSON.stringify(newData);
-    console.log(data);
-    fs.writeFileSync('./public/latestVersion.json', data);
+    await latestVersionModel.newVersion(body.newVersion);
 
     fs.renameSync('./public/' + req.file.filename, './public/' + req.file.originalname);
 
