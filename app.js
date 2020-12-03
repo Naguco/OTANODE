@@ -56,4 +56,4 @@ app.get('/', (req, res) => {
     res.status(200).send("OTA NODE");
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
