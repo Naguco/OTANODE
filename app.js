@@ -47,7 +47,7 @@ app.post("/newVersion", upload.single('file-to-upload'), (req, res) => {
     return res.status(200).send(body.newVersion);
 });
 
-app.get('/latestFileVersion', (req, res) => {
+app.get('/latestFileVersion.bin', (req, res) => {
     latestVersion = require('./public/latestVersion.json');
     res.sendFile(__dirname + '/public/' + latestVersion.latestVersion + '.bin');
 });
