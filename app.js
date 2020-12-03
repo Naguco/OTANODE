@@ -50,9 +50,9 @@ app.post("/newVersion", upload.single('file-to-upload'), async (req, res) => {
     return res.status(200).send(body.newVersion);
 });
 
-app.get('/latestFileVersion.bin', (req, res) => {
-    latestVersion = require('./public/latestVersion.json');
-    res.sendFile(__dirname + '/public/' + latestVersion.latestVersion + '.bin');
+app.get('/latestFileVersion.bin', async (req, res) => {
+    latestVersion = await latestVersionModel.getLatestVersion();
+    res.sendFile(__dirname + '/public/' + latestVersion[0].latestVersion + '.bin');
 });
 
 app.get('/', (req, res) => {
